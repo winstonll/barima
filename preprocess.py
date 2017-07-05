@@ -4,6 +4,9 @@ import gensim
 import collections
 from urllib.request import urlopen
 from PIL import ImageFile
+import nltk
+
+Class 
 
 def paragraph_count(text):
     paragraphcount = 0
@@ -17,6 +20,12 @@ def paragraph_count(text):
             linecount = 0
     return(paragraphcount)
 
+def word_count(text):
+	text = nltk.word_tokenize(text)
+	length = len(text)
+	richness = len(set(text))/length
+	return length, richness
+
 def word_porp(text, type):
     tok = nltk.word_tokenize(text)
     freq = nltk.pos_tag(tok)
@@ -25,6 +34,8 @@ def word_porp(text, type):
     table = collections.Counter(count)
     porp = table[type]/total_length
     return(porp)
+
+#reading time = 275 wpm + 12s per img
 
 def get_url_content(url):
 	a = Article(url)
@@ -37,8 +48,6 @@ def get_url_content(url):
 		if getsizes(i) > 24000:
 			largePic += 1
 	return text, largePic
-
-
 
 def getsizes(uri):
     file = urlopen(uri)
