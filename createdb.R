@@ -8,7 +8,7 @@ sql = "SELECT created_utc, subreddit, domain, url, num_comments,
 		FROM [fh-bigquery:reddit_posts.2016_01] 
 		WHERE subreddit in ('todayilearned', 'science', 'worldnews', 
 		'movies', 'music', 'news', 'books', 'space', 'gadgets', 
-		'technology', 'politics', 'games')
+		'technology', 'politics', 'games', 'economics', )
 		AND selftext <> '[removed]' 
 		AND selftext <> '[deleted]'
 		LIMIT 100"
