@@ -6,61 +6,61 @@ from urllib.request import urlopen
 from PIL import ImageFile
 import nltk
 
-Class 
+Class RedditExtractor:
+    def __init__(self, url):
+        a = Article(url)
+        a.download()
+        a.parse()
+        self.text = a.text
+        self.tok = nltk.word_tokenize(text)
+        self.img = list(a.images)
+        self.url = url
 
-def paragraph_count(text):
-    paragraphcount = 0
-    linecount = 0
-    for line in text:
-        if line in ('\n', '\r\n'):
-            if linecount == 0:
-                paragraphcount = paragraphcount + 1
-            linecount = linecount + 1
-        else:
-            linecount = 0
-    return(paragraphcount)
+    def paragraph_counter(self):
+        linecount = 0
+        for line in self.text:
+            if line in ('\n', '\r\n'):
+                if linecount == 0:
+                    self.paragraph_count += 1
+                linecount += 1
+            else:
+                linecount = 0
+        return(self.paragraph_count)
 
-def word_count(text):
-	text = nltk.word_tokenize(text)
-	length = len(text)
-	richness = len(set(text))/length
-	return length, richness
+    def word_count(self):
+	   self.length = len(self.text)
+	   self.richness = len(set(self.text))/self.length
+	   return self.length, self.richness
 
-def word_porp(text, type):
-    tok = nltk.word_tokenize(text)
-    freq = nltk.pos_tag(tok)
-    count = [w[1] for w in freq]
-    total_length = len(count)
-    table = collections.Counter(count)
-    porp = table[type]/total_length
-    return(porp)
+    def word_porp(self, type):
+        freq = nltk.pos_tag(self.tok)
+        count = [w[1] for w in freq]
+        count_length = len(count)
+        table = collections.Counter(count)
+        self.porp = table[type]/count_length
+    return(self.porp)
 
 #reading time = 275 wpm + 12s per img
 
-def get_url_content(url):
-	a = Article(url)
-	a.download()
-	a.parse()
-	text = a.text
-	img = list(a.images)
-	largePic = 0
-	for i in img:
-		if getsizes(i) > 24000:
-			largePic += 1
-	return text, largePic
+    def count_img(self):
+	   self.img_count = 0
+	   for i in self.img:
+	       if getsizes(i) > 24000:
+	           self.img_count += 1
+	   return self.img_count
 
-def getsizes(uri):
-    file = urlopen(uri)
-    size = file.headers.get("content-length")
-    if size: size = int(size)
-    p = ImageFile.Parser()
-    while 1:
-        data = file.read(1024)
-        if not data:
-            break
-        p.feed(data)
-        if p.image:
-            return p.image.size[0]*p.image.size[1]
-            break
-    file.close()
-    return 0
+    def getsizes(self):
+        file = urlopen(self.url)
+        size = file.headers.get("content-length")
+        if size: size = int(size)
+            p = ImageFile.Parser()
+        while 1:
+            data = file.read(1024)
+            if not data:
+                break
+            p.feed(data)
+            if p.image:
+                return p.image.size[0]*p.image.size[1]
+                break
+        file.close()
+        return 0
