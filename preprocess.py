@@ -6,6 +6,22 @@ from urllib.request import urlopen
 from PIL import ImageFile
 import nltk
 
+def getsizes(url):
+	file = urlopen(url)
+	size = file.headers.get("content-length")
+	if size: size = int(size)
+	p = ImageFile.Parser()
+	while 1:
+		data = file.read(1024)
+		if not data:
+			break
+		p.feed(data)
+		if p.image:
+			return p.image.size[0]*p.image.size[1]
+			break
+	file.close()
+	return 0
+
 class RedditExtractor:
 
 	def __init__(self, url):
@@ -49,19 +65,3 @@ class RedditExtractor:
 			if getsizes(i) > 24000:
 				self.img_count += 1
 		return self.img_count
-
-	def getsizes(self):
-		file = urlopen(self.url)
-		size = file.headers.get("content-length")
-		if size: size = int(size)
-		p = ImageFile.Parser()
-		while 1:
-			data = file.read(1024)
-			if not data:
-				break
-			p.feed(data)
-			if p.image:
-				return p.image.size[0]*p.image.size[1]
-				break
-		file.close()
-		return 0
