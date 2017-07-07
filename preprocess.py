@@ -2,25 +2,36 @@ import pandas as pd
 from newspaper import Article
 import gensim
 import collections
-from urllib.request import urlopen
+import urllib
+from urllib.request import Request, urlopen
+from urllib.error import URLError, HTTPError
 from PIL import ImageFile
 import nltk
 
 def getsizes(url):
-	file = urlopen(url)
-	size = file.headers.get("content-length")
-	if size: size = int(size)
-	p = ImageFile.Parser()
-	while 1:
-		data = file.read(1024)
-		if not data:
-			break
-		p.feed(data)
-		if p.image:
-			return p.image.size[0]*p.image.size[1]
-			break
-	file.close()
-	return 0
+	req = Request(url)
+	try:
+		file = urlopen(req)
+	except HTTPError as e:
+		print('http')
+		return 0
+	except URLError as e:
+		print('url')
+		return 0
+	else:
+		size = file.headers.get("content-length")
+		if size: size = int(size)
+		p = ImageFile.Parser()
+		while 1:
+			data = file.read(1024)
+			if not data:
+				break
+			p.feed(data)
+			if p.image:
+				return p.image.size[0]*p.image.size[1]
+				break
+		file.close()
+		return 0
 
 class RedditExtractor:
 
@@ -32,6 +43,8 @@ class RedditExtractor:
 		self.tok = nltk.word_tokenize(self.text)
 		self.img = list(a.images)
 		self.url = url
+		self.length = 0
+		self.img_count = 0
 
 	def paragraph_counter(self):
 		linecount = 0
@@ -57,10 +70,11 @@ class RedditExtractor:
 		self.porp = table[type]/count_length
 		return(self.porp)
 
-#reading time = 275 wpm + 12s per img
+	def read_time(self):
+		self.required_time = round(self.length/275 + 0.2*self.count_img(), 1)
+		return self.required_time
 
 	def count_img(self):
-		self.count_img = 0
 		for i in self.img:
 			if getsizes(i) > 24000:
 				self.img_count += 1

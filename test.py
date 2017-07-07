@@ -1,7 +1,9 @@
 from preprocess import RedditExtractor
 
-myObject = RedditExtractor('https://www.investing.com/news/stock-market-news/futures-lower-ahead-of-trade,-adp-jobs-data-502653')
+myObject = RedditExtractor('http://www.cnn.com/2017/07/06/politics/trump-joins-battle-for-the-soul-of-the-west/index.html')
 #a, b = myObject.word_count
-c = myObject.count_img()
+d = myObject.length
+c = myObject.read_time()
 
+print(d)
 print(c)
