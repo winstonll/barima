@@ -1,9 +1,11 @@
 from reddit import RedditExtractor
 
-myObject = RedditExtractor('http://www.cnn.com/2017/07/06/politics/trump-joins-battle-for-the-soul-of-the-west/index.html')
+myObject = RedditExtractor('http://www.cnn.com/2017/07/06/health/photoshopped-baby-picture-with-piercing-trnd/index.html')
 #a, b = myObject.word_count
-d = myObject.length
+d = myObject.nword
 c = myObject.read_time()
+e = myObject.count_img()
 
-print(d)
-print(c)
+print('article length:', d)
+print('read time:', c)
+print('Img:', e)

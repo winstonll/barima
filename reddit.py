@@ -42,39 +42,39 @@ class RedditExtractor:
 		self.tok = nltk.word_tokenize(self.text)
 		self.img = list(a.images)
 		self.url = url
-		self.length = 0
-		self.img_count = 0
+		self.nchar = len(self.text)
+		self.nword = len(self.tok)
 
 	def paragraph_counter(self):
 		linecount = 0
+		paragraph_count = 0
 		for line in self.text:
 			if line in ('\n', '\r\n'):
 				if linecount == 0:
-					self.paragraph_count += 1
+					paragraph_count += 1
 					linecount += 1
 				else:
 					linecount = 0
-		return(self.paragraph_count)
+		return paragraph_count
 	
-	def word_count(self):
-		self.length = len(self.text)
-		self.richness = len(set(self.text))/self.length
-		return self.length, self.richness
+	def lexical_diversity(sel):
+		lex = len(set(self.text))/self.nword
 
 	def word_porp(self, type):
 		freq = nltk.pos_tag(self.tok)
 		count = [w[1] for w in freq]
 		count_length = len(count)
 		table = collections.Counter(count)
-		self.porp = table[type]/count_length
-		return(self.porp)
+		porp = table[type]/count_length
+		return porp
 
 	def read_time(self):
-		self.required_time = round(self.length/275 + 0.2*self.count_img(), 1)
-		return self.required_time
+		required_time = round(self.nword/275 + 0.2*self.count_img(), 1)
+		return required_time
 
 	def count_img(self):
+		img_count = 0
 		for i in self.img:
-			if getsizes(i) > 24000:
-				self.img_count += 1
-		return self.img_count
+			if getsizes(i) > 30000:
+				img_count += 1
+		return img_count
