@@ -2,7 +2,6 @@ import pandas as pd
 from newspaper import Article
 import gensim
 import collections
-import urllib
 from urllib.request import Request, urlopen
 from urllib.error import URLError, HTTPError
 from PIL import ImageFile
