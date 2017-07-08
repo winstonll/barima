@@ -2,25 +2,30 @@ from newspaper import Article
 import gensim
 import collections
 from urllib.request import Request, urlopen
-from urllib.error import URLError, HTTPError
+#from urllib.error import URLError, HTTPError
 from PIL import ImageFile
 import nltk
 import justext
 import requests
-from socket import timeout
+from textstat.textstat import textstat
+import math
+#from socket import timeout
 
 def getsizes(url):
     req = Request(url)
     try:
         file = urlopen(req)
-    except HTTPError:
-        print('http')
-        return 0
-    except URLError:
-        print('url')
-        return 0
-    except timeout:
-        print('timeout')
+    # except HTTPError:
+    #     print('http')
+    #     return 0
+    # except URLError:
+    #     print('url')
+    #     return 0
+    # except timeout:
+    #     print('timeout')
+    #     return(0)
+    except:
+        print('some error')
         return(0)
     else:
         size = file.headers.get("content-length")
@@ -60,6 +65,7 @@ class RedditExtractor:
 
         self.tok = nltk.word_tokenize(self.text)
         self.img = list(np_extract.images)
+        self.vid = list(np_extract.movies)
         self.url = url
         self.nchar = len(self.text)
         self.nword = len(self.tok)
@@ -92,13 +98,23 @@ class RedditExtractor:
         return required_time
 
     def count_img(self):
-        img_list = self.img
         img_count = 0
-        for i in img_list:
+        for i in self.img:
             if getsizes(i) > 500**2:
                 img_count += 1
         return img_count
 
     def count_video(self):
-        video_list = list(self.movies)
-        return len(video_list)
+        return len(self.vid)
+
+    def reading_difficulty(self):
+        diff_words = textstat.difficult_words(self.text)/self.nword
+        flesch_kincaid = textstat.flesch_kincaid_grade(self.text)
+        coleman_liau = textstat.coleman_liau_index(self.text)
+        ari = textstat.automated_readability_index(self.text)
+        dale_chall = textstat.dale_chall_readability_score(self.text)
+        linsear = textstat.linsear_write_formula(self.text)
+        gunning_fog = textstat.gunning_fog(self.text) - 6
+        smog = textstat.smog_index(self.text)
+        avg_grade = math.ceil((flesch_kincaid + coleman_liau + ari + dale_chall + linsear + gunning_fog + smog)/7)
+        return avg_grade, diff_words
