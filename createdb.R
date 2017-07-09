@@ -2,9 +2,10 @@ library(bigrquery)
 library(httr)
 library(RMySQL)
 
+#project = 'unified-sensor-173013'
 project = 'phd-media-1489418588611'
 sql = "SELECT created_utc, subreddit, domain, url, num_comments,
-        itle, selftext 
+        title, selftext 
         FROM [fh-bigquery:reddit_posts.2016_01] 
         WHERE subreddit in ('todayilearned', 'science', 'worldnews', 
         'movies', 'music', 'news', 'books', 'space', 'gadgets', 
@@ -35,7 +36,7 @@ data = data_raw[as.logical(index), ]
 
 con = dbConnect(MySQL(), user = 'winstonl', password = '111111', 
             host = '146.148.45.182',
-            dbname = 'unified-sensor-173013:us-central1:arimadb')
+            dbname = 'arimadb')
 
 dbWriteTable(con, 'reddit_posts', data, append = T)
 

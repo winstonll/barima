@@ -1,6 +1,7 @@
-from reddit import RedditExtractor
+from urlAnalyzer import URLAnalyzer
+from textAnalyzer import TextAnalyzer
 
-myObject = RedditExtractor('https://www.reddit.com/r/technology/comments/6h82ji/pornhub_ok_cupid_imgur_duckduckgo_namecheap/')
+myObject = URLAnalyzer('http://www.markevans.ca/2017/06/14/create-taglines/')
 
 a = myObject.paragraph_counter()
 b = myObject.lexical_diversity()
