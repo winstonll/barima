@@ -9,6 +9,8 @@ import justext
 import requests
 from textstat.textstat import textstat
 import math
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+
 #from socket import timeout
 
 def getsizes(url):
@@ -82,15 +84,16 @@ class RedditExtractor:
                     linecount = 0
         return paragraph_count
 
-    def lexical_diversity(sel):
+    def lexical_diversity(self):
         lex = len(set(self.text))/self.nword
+        return lex
 
-    def word_porp(self, type):
+    def descriptive_words_porp(self):
         freq = nltk.pos_tag(self.tok)
         count = [w[1] for w in freq]
-        count_length = len(count)
         table = collections.Counter(count)
-        porp = table[type]/count_length
+        sub_table = dict((k, table[k]) for k in ('JJ', 'JJR', 'JJS', 'RB', 'RBR', 'RBS'))
+        porp = sum(sub_table.values())/self.nword
         return porp
 
     def read_time(self):
@@ -118,3 +121,8 @@ class RedditExtractor:
         smog = textstat.smog_index(self.text)
         avg_grade = math.ceil((flesch_kincaid + coleman_liau + ari + dale_chall + linsear + gunning_fog + smog)/7)
         return avg_grade, diff_words
+
+    def sentiment(self):
+        analyser = SentimentIntensityAnalyzer()
+        sent = analyser.polarity_scores(self.text)
+        return sent['compound']
