@@ -21,13 +21,14 @@ index = rep(1, nrow(data_raw))
 for(i in 1:nrow(data_raw)){
     if(substr(data_raw$domain[i], 1, 5) == 'self.' & nchar(data_raw$selftext[i]) < 100)
         index[i] = 0
-    else if(substr(data_raw$domain[i], 1, 25) != 'https://www.reddit.com/r/')
+    else if(substr(data_raw$domain[i], 1, 25) != 'https://www.reddit.com/r/'){
         x = try(GET(data_raw$url[i]), silent = T)
 
         if(class(x) == 'try-error')
             index[i] = 0
         else if(http_status(x)$category != 'Success')
             index[i] = 0
+     }
     if(i %% 10 == 0)
         print(i)
 }
