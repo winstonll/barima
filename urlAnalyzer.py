@@ -72,6 +72,18 @@ class URLAnalyzer:
         self.nchar = len(self.text)
         self.nword = len(self.tok)
 
+    def descriptive_words_porp(self):
+        freq = nltk.pos_tag(self.tok)
+        count = [w[1] for w in freq]
+        table = collections.Counter(count)
+        sub_table = dict((k, table[k]) for k in ('JJ', 'JJR', 'JJS', 'RB', 'RBR', 'RBS'))
+        porp = sum(sub_table.values())/self.nword
+        return porp
+
+    def lexical_diversity(self):
+        lex = len(set(self.text))/self.nword
+        return lex
+
     def paragraph_counter(self):
         linecount = 0
         paragraph_count = 0
@@ -83,18 +95,6 @@ class URLAnalyzer:
                 else:
                     linecount = 0
         return paragraph_count
-
-    def lexical_diversity(self):
-        lex = len(set(self.text))/self.nword
-        return lex
-
-    def descriptive_words_porp(self):
-        freq = nltk.pos_tag(self.tok)
-        count = [w[1] for w in freq]
-        table = collections.Counter(count)
-        sub_table = dict((k, table[k]) for k in ('JJ', 'JJR', 'JJS', 'RB', 'RBR', 'RBS'))
-        porp = sum(sub_table.values())/self.nword
-        return porp
 
     def read_time(self):
         required_time = round(self.nword/275 + 0.2*self.count_img(), 1)
