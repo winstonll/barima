@@ -1,7 +1,6 @@
 library(bigrquery)
 library(httr)
 library(RMySQL)
-library(SocialMediaMineR)
 
 subs = c('todayilearned', 'science', 'worldnews', 
         'movies', 'Music', 'news', 'books', 'space', 'gadgets', 
@@ -14,9 +13,14 @@ dates = c('2016_01', '2016_02', '2016_03', '2016_04', '2016_05', '2016_06', '201
 
 project = 'unified-sensor-173013'
 
-con = dbConnect(MySQL(), user = 'winstonl', password = '111111', 
-            host = '146.148.45.182',
-            dbname = 'arimadb')
+get_linkedin = function (links){
+    lkn.response <- data.frame()
+    lkn.call <- paste0("https://www.linkedin.com/countserv/count/share?url=", 
+        links, "&format=json")
+    api_scrapper <- function(x) try(RCurl::getURL(x, timeout = 240, ssl.verifypeer = FALSE))
+    lkn.response <- try(data.frame(RJSONIO::fromJSON(api_scrapper(lkn.call))))
+    return(lkn.response)
+}
 
 for(d in dates){
     for(s in subs){
@@ -47,13 +51,14 @@ for(d in dates){
             if(substr(data_raw$domain[i], 1, 5) == 'self.' & nchar(data_raw$selftext[i]) < 100)
                 index[i] = 0
             else{
-                x = try(GET(data_raw$url[i]), silent = T)
+                shorten = strsplit(data_raw$url[i], '#')[[1]][1]
+                x = try(GET(shorten), silent = T)
                 if(class(x) == 'try-error')
                     index[i] = 0
                 else if(x$status_code != 200)
                     index[i] = 0
                 else{
-                    linkedin_table = try(get_linkedin(data_raw$url[i]), silent = T)
+                    linkedin_table = get_linkedin(shorten)
                     if(class(linkedin_table) != 'try-error')
                         data_raw$linkedin_shares[i] = as.integer(linkedin_table[1])
                 }
@@ -64,7 +69,12 @@ for(d in dates){
 
         data = data_raw[as.logical(index), ]
 
+        con = dbConnect(MySQL(), user = 'winstonl', password = '111111', 
+            host = '146.148.45.182',
+            dbname = 'arimadb')
+        
         dbWriteTable(con, 'reddit_posts', data, append = T)
+
         print(s)
         print(d)
     }
