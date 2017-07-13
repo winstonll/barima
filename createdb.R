@@ -3,12 +3,8 @@ library(httr)
 library(RMySQL)
 library(R.utils)
 
-# subs = c('todayilearned', 'science', 'worldnews', 
-#         'movies', 'Music', 'news', 'books', 'space', 'gadgets', 
-#         'technology', 'politics', 'Games', 'Economics', 'relationships',
-#         'Fitness', 'Bitcoin', 'lgbt', 'writing', 'Android', 'PS4', 'nyc', 'LosAngeles',
-#         'toronto', 'KotakuInAction')
-subs = c('movies', 'Music', 'news', 'books', 'space', 'gadgets', 
+subs = c('todayilearned', 'science', 'worldnews', 
+        'movies', 'Music', 'news', 'books', 'space', 'gadgets', 
         'technology', 'politics', 'Games', 'Economics', 'relationships',
         'Fitness', 'Bitcoin', 'lgbt', 'writing', 'Android', 'PS4', 'nyc', 'LosAngeles',
         'toronto', 'KotakuInAction')
@@ -17,7 +13,7 @@ subs = c('movies', 'Music', 'news', 'books', 'space', 'gadgets',
 #             '2016_08', '2016_09', '2016_10', '2016_11', '2016_12', '2017_01', '2017_02', 
 #             '2017_03', '2017_04', '2017_05')
 
-dates = '2016_01'
+dates = '2016_02'
 
 project = 'unified-sensor-173013'
 
@@ -71,7 +67,7 @@ for(d in dates){
                     data_raw$linkedin_shares[i] = as.integer(linkedin_table[1])
                 }
              }
-            if(i %% 50 == 0)
+            if(i %% 1 == 0)
                 print(paste(i, dim, Sys.time(), sep = ', '))
         }
 
@@ -82,7 +78,7 @@ for(d in dates){
             dbname = 'arimadb')
         
         dbWriteTable(con, 'reddit_posts', data, append = T)
-
+        dbDisconnect(con)
         print(paste('End', d, s, Sys.time(), sep = ', '))
     }
 }
