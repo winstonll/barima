@@ -66,7 +66,7 @@ for(d in dates){
         dim = nrow(data_raw)
         index = rep(0, dim)
 
-        for(i in 2250:2300){
+        for(i in 1:dim){
             if(substr(data_raw$domain[i], 1, 5) == 'self.')
                 if(nchar(data_raw$selftext[i]) > 100)
                     index[i] = 1
@@ -83,7 +83,7 @@ for(d in dates){
                     index[i] = 1
                 }
             }
-            if(i %% 1 == 0)
+            if(i %% 100 == 0)
                 print(paste(i, dim, Sys.time(), sep = ', '))
         }
 
