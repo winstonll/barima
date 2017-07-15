@@ -2,6 +2,8 @@ library(bigrquery)
 library(httr)
 library(RMySQL)
 library(R.utils)
+library(RCurl)
+library(RJSONIO)
 
 subs = c('todayilearned', 'science', 'worldnews', 
         'movies', 'Music', 'news', 'books', 'space', 'gadgets', 
@@ -9,7 +11,7 @@ subs = c('todayilearned', 'science', 'worldnews',
         'Fitness', 'Bitcoin', 'lgbt', 'writing', 'Android', 'PS4', 'nyc', 'LosAngeles',
         'toronto', 'KotakuInAction')
 
-size = c(1,1,1,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1)
+size = c(2,1,1,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1)
 
 num = length(size)
 
@@ -23,22 +25,37 @@ get_linkedin = function (links){
     lkn.response <- data.frame()
     lkn.call <- paste0("https://www.linkedin.com/countserv/count/share?url=", 
         links, "&format=json")
-    api_scrapper <- function(x) try(RCurl::getURL(x, timeout = 240, ssl.verifypeer = FALSE))
-    lkn.response <- try(data.frame(RJSONIO::fromJSON(api_scrapper(lkn.call))))
-    return(lkn.response)
+    api_scrapper <- function(x) try(getURL(x, timeout = 240, ssl.verifypeer = FALSE))
+    response = try(fromJSON(api_scrapper(lkn.call)), silent = T)
+    if(class(response) != 'try-error'){
+        lkn.response <- data.frame(fromJSON(api_scrapper(lkn.call)))
+        return(lkn.response)
+    }
+    else
+        return(0)
 }
 
 for(d in dates){
     for(s in 1:num){
         print(paste("Start", d, subs[s], Sys.time(), sep = ', '))
-        if(size[s] == 1){
+        if(size[s] == 2){
             sql = paste("SELECT created_utc, subreddit, domain, url, num_comments,
                     score, title, selftext 
                     FROM [fh-bigquery:reddit_posts.", d, "] 
                     WHERE subreddit in ('", subs[s], "')
                     AND selftext <> '[removed]' 
                     AND selftext <> '[deleted]'
-                    AND (score > 99 OR num_comments > 200)", sep = '')
+                    AND (score > 200 OR num_comments > 300)", sep = '')
+        }
+
+        else if(size[s] == 1){
+            sql = paste("SELECT created_utc, subreddit, domain, url, num_comments,
+                    score, title, selftext 
+                    FROM [fh-bigquery:reddit_posts.", d, "] 
+                    WHERE subreddit in ('", subs[s], "')
+                    AND selftext <> '[removed]' 
+                    AND selftext <> '[deleted]'
+                    AND (score > 100 OR num_comments > 200)", sep = '')
         }
 
         else{
@@ -48,7 +65,7 @@ for(d in dates){
                     WHERE subreddit in ('", subs[s], "')
                     AND selftext <> '[removed]' 
                     AND selftext <> '[deleted]'
-                    AND (score > 49 OR num_comments > 100)", sep = '')
+                    AND (score > 50 OR num_comments > 100)", sep = '')
         }
 
         data_raw = query_exec(sql, project = project, max_pages = Inf)
@@ -74,7 +91,7 @@ for(d in dates){
                     next
             else{   
                 shorten = strsplit(data_raw$url[i], '#')[[1]][1]
-                x = evalWithTimeout(try(GET(shorten), silent = T), timeout = 10, onTimeout = "error") 
+                x = evalWithTimeout(try(GET(shorten), silent = T), timeout = 15, onTimeout = "error") 
                 if(class(x) == 'try-error')
                     next
                 else if(x$status_code == 200){
@@ -94,7 +111,7 @@ for(d in dates){
             dbname = 'arimadb')
         
         dbWriteTable(con, 'reddit_posts', data, append = T)
-        print(nrow(data), 'Columns written to DB', sep = ' ')
+        print(paste(nrow(data), 'Columns written to DB', sep = ' '))
         dbDisconnect(con)
         print(paste('End', d, s, Sys.time(), sep = ', '))
     }
