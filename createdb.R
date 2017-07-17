@@ -5,19 +5,18 @@ library(R.utils)
 library(RCurl)
 library(RJSONIO)
 
-subs = c('todayilearned', 'science', 'worldnews', 
-        'movies', 'Music', 'news', 'books', 'space', 'gadgets', 
-        'technology', 'politics', 'Games', 'Economics', 'relationships',
-        'Fitness', 'Bitcoin', 'lgbt', 'writing', 'Android', 'PS4', 'nyc', 'LosAngeles',
-        'toronto', 'KotakuInAction')
+large_subs = "'todayilearned', 'politics'"
+mid_subs = "'science', 'worldnews', 'new', 'technology', 'KotakuInAction'"
+small_subs = "'movies', 'Music', 'books', 'space', 'gadgets', 
+        'Games', 'Economics', 'relationships', 'Fitness', 'Bitcoin', 'lgbt', 
+        'writing', 'Android', 'PS4', 'nyc', 'LosAngeles', 'toronto'"
 
-size = c(2,1,1,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1)
-
-num = length(size)
-
-dates = c('2016_01', '2016_02', '2016_03', '2016_04', '2016_05', '2016_06', '2016_07', 
-            '2016_08', '2016_09', '2016_10', '2016_11', '2016_12', '2017_01', '2017_02', 
+dates = c('2016_08', '2016_09', '2016_10', '2016_11', '2016_12', '2017_01', '2017_02', 
             '2017_03', '2017_04', '2017_05')
+
+# dates = c('2016_01', '2016_02', '2016_03', '2016_04', '2016_05', '2016_06', '2016_07', 
+#             '2016_08', '2016_09', '2016_10', '2016_11', '2016_12', '2017_01', '2017_02', 
+#             '2017_03', '2017_04', '2017_05')
 
 project = 'unified-sensor-173013'
 
@@ -36,23 +35,23 @@ get_linkedin = function (links){
 }
 
 for(d in dates){
-    for(s in 1:num){
-        print(paste("Start", d, subs[s], Sys.time(), sep = ', '))
-        if(size[s] == 2){
+    for(s in 1:3){
+        print(paste("Start", d, "Size", s, Sys.time(), sep = ', '))
+        if(s == 1){
             sql = paste("SELECT created_utc, subreddit, domain, url, num_comments,
                     score, title, selftext 
                     FROM [fh-bigquery:reddit_posts.", d, "] 
-                    WHERE subreddit in ('", subs[s], "')
+                    WHERE subreddit in (", large_subs, ")
                     AND selftext <> '[removed]' 
                     AND selftext <> '[deleted]'
                     AND (score > 200 OR num_comments > 300)", sep = '')
         }
 
-        else if(size[s] == 1){
+        else if(s == 2){
             sql = paste("SELECT created_utc, subreddit, domain, url, num_comments,
                     score, title, selftext 
                     FROM [fh-bigquery:reddit_posts.", d, "] 
-                    WHERE subreddit in ('", subs[s], "')
+                    WHERE subreddit in (", mid_subs, ")
                     AND selftext <> '[removed]' 
                     AND selftext <> '[deleted]'
                     AND (score > 100 OR num_comments > 200)", sep = '')
@@ -62,7 +61,7 @@ for(d in dates){
                 sql = paste("SELECT created_utc, subreddit, domain, url, num_comments,
                     score, title, selftext 
                     FROM [fh-bigquery:reddit_posts.", d, "] 
-                    WHERE subreddit in ('", subs[s], "')
+                    WHERE subreddit in (", small_subs, ")
                     AND selftext <> '[removed]' 
                     AND selftext <> '[deleted]'
                     AND (score > 50 OR num_comments > 100)", sep = '')
@@ -107,8 +106,7 @@ for(d in dates){
         data = data_raw[as.logical(index), ]
         data$created_utc = as.POSIXct(data$created_utc, origin='1970-01-01')
         con = dbConnect(MySQL(), user = 'winstonl', password = '111111', 
-            host = '146.148.45.182',
-            dbname = 'arimadb')
+            host = '146.148.45.182', dbname = 'arimadb')
         
         dbWriteTable(con, 'reddit_posts', data, append = T)
         print(paste(nrow(data), 'Columns written to DB', sep = ' '))
