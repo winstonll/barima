@@ -1,8 +1,6 @@
 from newspaper import Article
-import gensim
 import collections
 from urllib.request import Request, urlopen
-#from urllib.error import URLError, HTTPError
 from PIL import ImageFile
 import nltk
 import justext
@@ -11,23 +9,11 @@ from textstat.textstat import textstat
 import math
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
-#from socket import timeout
-
 def getsizes(url):
     req = Request(url)
     try:
         file = urlopen(req)
-    # except HTTPError:
-    #     print('http')
-    #     return 0
-    # except URLError:
-    #     print('url')
-    #     return 0
-    # except timeout:
-    #     print('timeout')
-    #     return(0)
     except:
-        print('some error')
         return(0)
     else:
         size = file.headers.get("content-length")
@@ -65,6 +51,7 @@ class URLAnalyzer:
         else:
             self.text = jt_text
 
+        self.original_title = np_extract.title
         self.tok = nltk.word_tokenize(self.text)
         self.img = list(np_extract.images)
         self.vid = list(np_extract.movies)
@@ -81,7 +68,10 @@ class URLAnalyzer:
         return porp
 
     def lexical_diversity(self):
-        lex = len(set(self.text))/self.nword
+        if self.nword == 0:
+            lex = 0
+        else:
+            lex = len(set(self.text))/self.nword
         return lex
 
     def paragraph_counter(self):

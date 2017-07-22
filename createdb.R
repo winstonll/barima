@@ -11,12 +11,9 @@ small_subs = "'movies', 'Music', 'books', 'space', 'gadgets',
         'Games', 'Economics', 'relationships', 'Fitness', 'Bitcoin', 'lgbt', 
         'writing', 'Android', 'PS4', 'nyc', 'LosAngeles', 'toronto'"
 
-dates = c('2016_08', '2016_09', '2016_10', '2016_11', '2016_12', '2017_01', '2017_02', 
+dates = c('2016_01', '2016_02', '2016_03', '2016_04', '2016_05', '2016_06', '2016_07', 
+            '2016_08', '2016_09', '2016_10', '2016_11', '2016_12', '2017_01', '2017_02', 
             '2017_03', '2017_04', '2017_05')
-
-# dates = c('2016_01', '2016_02', '2016_03', '2016_04', '2016_05', '2016_06', '2016_07', 
-#             '2016_08', '2016_09', '2016_10', '2016_11', '2016_12', '2017_01', '2017_02', 
-#             '2017_03', '2017_04', '2017_05')
 
 project = 'unified-sensor-173013'
 
@@ -78,6 +75,10 @@ for(d in dates){
         data_raw$reading_difficulty = 0
         data_raw$linkedin_shares = 0L
         data_raw$keywords = ''
+        data_raw$original_title = ''
+        data_raw$title_nchar = 0
+        data_raw$title_nword = 0
+        data_raw$title_sentiment = 0
 
         dim = nrow(data_raw)
         index = rep(0, dim)

@@ -1,4 +1,3 @@
-import gensim
 import collections
 import nltk
 from textstat.textstat import textstat
@@ -8,9 +7,8 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 class TextAnalyzer:
 
     def __init__(self, text):
-    	self.text = text
+        self.text = text
         self.tok = nltk.word_tokenize(self.text)
-        self.url = url
         self.nchar = len(self.text)
         self.nword = len(self.tok)
 
