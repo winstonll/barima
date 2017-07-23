@@ -104,16 +104,19 @@ class URLAnalyzer:
         return len(self.vid)
 
     def reading_difficulty(self):
-        diff_words = textstat.difficult_words(self.text)/self.nword
-        flesch_kincaid = textstat.flesch_kincaid_grade(self.text)
-        coleman_liau = textstat.coleman_liau_index(self.text)
-        ari = textstat.automated_readability_index(self.text)
-        dale_chall = textstat.dale_chall_readability_score(self.text)
-        linsear = textstat.linsear_write_formula(self.text)
-        gunning_fog = textstat.gunning_fog(self.text) - 6
-        smog = textstat.smog_index(self.text)
-        avg_grade = math.ceil((flesch_kincaid + coleman_liau + ari + dale_chall + linsear + gunning_fog + smog)/7)
-        return avg_grade, diff_words
+        if self.nword == 0:
+            return 0, 0
+        else:  
+            diff_words = textstat.difficult_words(self.text)/self.nword
+            flesch_kincaid = textstat.flesch_kincaid_grade(self.text)
+            coleman_liau = textstat.coleman_liau_index(self.text)
+            ari = textstat.automated_readability_index(self.text)
+            dale_chall = textstat.dale_chall_readability_score(self.text)
+            linsear = textstat.linsear_write_formula(self.text)
+            gunning_fog = textstat.gunning_fog(self.text) - 6
+            smog = textstat.smog_index(self.text)
+            avg_grade = math.ceil((flesch_kincaid + coleman_liau + ari + dale_chall + linsear + gunning_fog + smog)/7)
+            return avg_grade, diff_words
 
     def sentiment(self):
         analyser = SentimentIntensityAnalyzer()
