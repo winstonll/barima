@@ -60,11 +60,14 @@ class URLAnalyzer:
         self.nword = len(self.tok)
 
     def descriptive_words_porp(self):
-        freq = nltk.pos_tag(self.tok)
-        count = [w[1] for w in freq]
-        table = collections.Counter(count)
-        sub_table = dict((k, table[k]) for k in ('JJ', 'JJR', 'JJS', 'RB', 'RBR', 'RBS'))
-        porp = sum(sub_table.values())/self.nword
+        if self.nword == 0:
+            porp = 0
+        else:
+            freq = nltk.pos_tag(self.tok)
+            count = [w[1] for w in freq]
+            table = collections.Counter(count)
+            sub_table = dict((k, table[k]) for k in ('JJ', 'JJR', 'JJS', 'RB', 'RBR', 'RBS'))
+            porp = sum(sub_table.values())/self.nword
         return porp
 
     def lexical_diversity(self):
