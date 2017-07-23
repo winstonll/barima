@@ -10,13 +10,13 @@ cursor = connection.cursor()
 for i in range(1, 242895):
     sql = "SELECT * FROM reddit_posts LIMIT 1 OFFSET %s"
     cursor.execute(sql, (i-1))
-    print('Currently working on batch starting: ' + str(i))
+    print('Currently working on id: ' + str(i))
     row = cursor.fetchone()
     id = row['row_names']
-    print('Currently processing: ' + str(id))
     if row['selftext'] == '':
-        print('This is a link')        
+        print('This is a link')
         analyzer = URLAnalyzer(row['url'])
+        text = analyzer.text
         par_count = analyzer.paragraph_counter()
         lex = analyzer.lexical_diversity()
         nword = analyzer.nword
@@ -31,10 +31,10 @@ for i in range(1, 242895):
         title_nchar = len(original_title)
         title_nword = title_analyzer.nword
         title_sentiment = title_analyzer.sentiment()
-        sql_update = 'UPDATE reddit_posts SET paragraph_count = %s, lexical_diversity = %s, img_count = %s, \
+        sql_update = 'UPDATE reddit_posts SET selftext = %s, paragraph_count = %s, lexical_diversity = %s, img_count = %s, \
             descriptive_words = %s, video_count = %s, reading_time = %s, sentiment = %s, reading_difficulty = %s, \
             original_title = %s, title_nchar = %s, title_nword = %s, title_sentiment = %s WHERE row_names = %s;'
-        rowUpdate = cursor.execute(sql_update, (par_count, lex, img, descriptive, vid, read_time, sentiment, grade, \
+        rowUpdate = cursor.execute(sql_update, (text, par_count, lex, img, descriptive, vid, read_time, sentiment, grade, \
             original_title, title_nchar, title_nword, title_sentiment, id))
         connection.commit()
     else:

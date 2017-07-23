@@ -35,8 +35,11 @@ class URLAnalyzer:
     def __init__(self, url):
         np_extract = Article(url)
         np_extract.download()
-        np_extract.parse()
-        np_text = np_extract.text
+        if np_extract.download_state == 2:
+            np_extract.parse()
+            np_text = np_extract.text
+        else:
+            np_text = ''
 
         jt_text = ''
         response = requests.get(url)
