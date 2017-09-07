@@ -3,21 +3,16 @@ from textAnalyzer import TextAnalyzer
 from sqlalchemy import create_engine
 import pandas as pd
 
-# connection = pymysql.connect(host = '146.148.45.182', user = 'winstonl', password = '111111', db = 'arimadb',
-#     charset = 'utf8mb4', cursorclass = pymysql.cursors.DictCursor)
-
-# cursor = connection.cursor()
-
-engine = create_engine('mysql+pymysql://winstonl:111111@146.148.45.182:3306/arimadb')
+engine = create_engine('mysql+pymysql://winstonl:111111@146.148.45.182:3306/arimadb?charset=utf8mb4', encoding = 'utf-8')
 sql_template = "SELECT * FROM reddit_posts LIMIT 1 OFFSET %s"
 
-with engine.connect() as conn, conn.begin():
-    for i in range(1, 242895):
+for i in range(1, 242895):
+    with engine.connect() as conn, conn.begin():
         sql = sql_template % (i-1)
         row = pd.read_sql(sql, conn)
-        if row['selftext'] == '':
+        if row['selftext'][0] == '':
             analyzer = URLAnalyzer(row['url'][0])
-            selftext = analyzer.text.encode('utf-8')
+            selftext = analyzer.text
             paragraph_count = analyzer.paragraph_counter()
             lexical_diversity = analyzer.lexical_diversity()
             nword = analyzer.nword
@@ -35,17 +30,15 @@ with engine.connect() as conn, conn.begin():
 
             d = pd.DataFrame({'created_at': row['created_utc'][0], 'subreddit': row['subreddit'][0], 
                 'url': row['url'][0], 'num_comments': row['num_comments'][0], 'score': row['score'][0], 
-                'title': row['title'][0], 'selftext': selftext, 'paragraph_count': paragraph_count, 'image_count': img,
+                'title': row['title'][0], 'selftext': selftext, 'word_count': nword, 'paragraph_count': paragraph_count, 'image_count': img,
                 'video_count': vid, 'reading_time': read_time, 'sentiment': sentiment, 'reading_difficulty': grade, 
                 'word_freq': word_usage_freq,'descriptive_words': descriptive,
                 'linkedin_shares': row['linkedin_shares'][0], 'keywords': '', 'original_title': original_title,
                 'title_nchar': title_nchar, 'title_nword': title_nword, 'title_sentiment': title_sentiment}, index=[0])
-            d.to_sql('reddit_data', conn, if_exists = 'append', index = False)
-        
         else:
-            print("This is self post")
-            analyzer = TextAnalyzer(row['selftext'][0])
-            par_count = analyzer.paragraph_counter()
+            selftext = row['selftext'][0]
+            analyzer = TextAnalyzer(selftext)
+            paragraph_count = analyzer.paragraph_counter()
             lex = analyzer.lexical_diversity()
             nword = analyzer.nword
             read_time = analyzer.read_time()
@@ -59,10 +52,19 @@ with engine.connect() as conn, conn.begin():
 
             d = pd.DataFrame({'created_at': row['created_utc'][0], 'subreddit': row['subreddit'][0], 
                 'url': row['url'][0], 'num_comments': row['num_comments'][0], 'score': row['score'][0], 
-                'title': row['title'][0], 'selftext': selftext, 'paragraph_count': paragraph_count, 'image_count': 0,
+                'title': row['title'][0], 'selftext': selftext, 'word_count': nword, 'paragraph_count': paragraph_count, 'image_count': 0,
                 'video_count': 0, 'reading_time': read_time, 'sentiment': sentiment, 'reading_difficulty': grade, 
                 'word_freq': word_usage_freq,'descriptive_words': descriptive,
                 'linkedin_shares': row['linkedin_shares'][0], 'keywords': '', 'original_title': '',
                 'title_nchar': title_nchar, 'title_nword': title_nword, 'title_sentiment': title_sentiment}, index=[0])
 
         d.to_sql('reddit_data', conn, if_exists = 'append', index = False)
+        print(i)
+
+    if i == 1:
+        import pymysql
+        connection = pymysql.connect(host = '146.148.45.182', user = 'winstonl', password = '111111', db = 'arimadb', 
+            charset = 'utf8mb4', cursorclass = pymysql.cursors.DictCursor)
+        cursor = connection.cursor()
+        cursor.execute('ALTER TABLE reddit_data MODIFY COLUMN selftext LONGTEXT;')
+        connection.close()

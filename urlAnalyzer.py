@@ -12,7 +12,7 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 def getsizes(url):
     req = Request(url)
     try:
-        file = urlopen(req)
+        file = urlopen(req, timeout = 10)
     except:
         return(0)
     else:
