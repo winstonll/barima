@@ -23,7 +23,10 @@ def getsizes(url):
             data = file.read(1024)
             if not data:
                 break
-            p.feed(data)
+            try:
+                p.feed(data)
+            except:
+                return(0)
             if p.image:
                 return p.image.size[0]*p.image.size[1]
                 break
@@ -42,12 +45,14 @@ class URLAnalyzer:
             np_text = ''
 
         jt_text = ''
-        response = requests.get(url)
-        paragraphs = justext.justext(response.content, justext.get_stoplist("English"))
-
-        for paragraph in paragraphs:
-            if not paragraph.is_boilerplate:
-                jt_text = jt_text + str(paragraph.text)
+        try:
+            response = requests.get(url)
+            paragraphs = justext.justext(response.content, justext.get_stoplist("English"))
+            for paragraph in paragraphs:
+                if not paragraph.is_boilerplate:
+                    jt_text = jt_text + str(paragraph.text)
+        except:
+            jt_text = ''
 
         if len(np_text) > len(jt_text):
             self.text = np_text
@@ -118,7 +123,7 @@ class URLAnalyzer:
             linsear = textstat.linsear_write_formula(self.text)
             gunning_fog = textstat.gunning_fog(self.text) - 6
             smog = textstat.smog_index(self.text)
-            avg_grade = math.ceil((flesch_kincaid + coleman_liau + ari + dale_chall + linsear + gunning_fog + smog)/7)
+            avg_grade = max(math.ceil((flesch_kincaid + coleman_liau + ari + dale_chall + linsear + gunning_fog + smog)/7), 12)
             return avg_grade, diff_words
 
     def sentiment(self):

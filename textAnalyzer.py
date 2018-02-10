@@ -49,7 +49,7 @@ class TextAnalyzer:
         linsear = textstat.linsear_write_formula(self.text)
         gunning_fog = textstat.gunning_fog(self.text) - 6
         smog = textstat.smog_index(self.text)
-        avg_grade = math.ceil((flesch_kincaid + coleman_liau + ari + dale_chall + linsear + gunning_fog + smog)/7)
+        avg_grade = max(math.ceil((flesch_kincaid + coleman_liau + ari + dale_chall + linsear + gunning_fog + smog)/7), 12)
         return avg_grade, diff_words
 
     def sentiment(self):
