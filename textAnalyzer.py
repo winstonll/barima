@@ -55,4 +55,4 @@ class TextAnalyzer:
     def sentiment(self):
         analyser = SentimentIntensityAnalyzer()
         sent = analyser.polarity_scores(self.text)
-        return sent['compound']
+        return sent['pos']/(sent['neg'] + sent['neu'] + sent['pos'])

@@ -39,8 +39,11 @@ class URLAnalyzer:
         np_extract = Article(url)
         np_extract.download()
         if np_extract.download_state == 2:
-            np_extract.parse()
-            np_text = np_extract.text
+            try:
+                np_extract.parse()
+                np_text = np_extract.text
+            except:
+                np_text = ''
         else:
             np_text = ''
 
@@ -129,4 +132,4 @@ class URLAnalyzer:
     def sentiment(self):
         analyser = SentimentIntensityAnalyzer()
         sent = analyser.polarity_scores(self.text)
-        return sent['compound']
+        return senta['pos']/(sent['neg'] + sent['neu'] + sent['pos'])
