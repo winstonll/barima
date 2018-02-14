@@ -6,7 +6,7 @@ import json
 import numpy as np
 import gc
 import time
-import timeout_decorator
+import timeout_decorator    
 pd.options.mode.chained_assignment = None
 
 def getLinkedin(url):
@@ -55,7 +55,7 @@ data = pd.read_pickle('/home/wli/dec2017')
 max_score = data.groupby('subreddit').apply(lambda x: np.max((x['score'])))
 max_comments = data.groupby('subreddit').apply(lambda x: np.max((x['num_comments'])))
 
-for index in range(48401, data.shape[0]):
+for index in range(50101, data.shape[0]):
     row = data.iloc[index]
     if row['selftext'] == '':
         try:
